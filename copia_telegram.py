@@ -3,11 +3,12 @@ import telebot
 from telebot import types
 
 bot=telebot.TeleBot("6218006765:AAF309hpXCmaU1r9P41zKiNK1L8gaqTMyqI")
+
+##Cria uma receptor que receberá qualquer mensagem digitada
 @bot.message_handler(func=lambda message: True)
 def inicio(message):
 
-
-
+ ...
 # Aqui podemos enviar uma mensagem para coletar um dado e enviar esse dado para a função desejada para poder trata-lo
 def iniciar_conversa(message):
     bot.send_message(message.chat.id, "texto da mensagem que pode ser usado para pedir um texto")

@@ -4,7 +4,7 @@ import requests
 
 def lendo_arquivo_json_(arquivo_nome):
     """ permite a leitura de um arquivo .json entregando o seu resultado, caso ele não exista ou esteje vazio será criado um com []
-        e assim entregue no primeiro momento.
+        e assim entregue no primeiro momento. Ele retorna uma lista.
          """
     try:
      with open(arquivo_nome, "r") as arquivo1: # fará a leitura do arquivo
@@ -58,3 +58,8 @@ def consulta_str_em_lista (stringg,lista):
       return True
     return False
 ##---------------------------------
+def adiciona_elemento_na_lista_json(elemento,arquivo):
+ a=lendo_arquivo_json_(arquivo)
+ a.append(elemento)
+ escrevendo_json_novo(a,arquivo)
+
