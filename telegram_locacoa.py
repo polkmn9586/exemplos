@@ -52,7 +52,7 @@ def botao_clicado(call):
 def inicio(message):
  id = message.chat.id
  markup = telebot.types.InlineKeyboardMarkup()
- but = telebot.types.InlineKeyboardButton('Clique aqui para visualizar dias e horas disponíveis',callback_data='inicio')
+ but = types.InlineKeyboardButton('Clique aqui para visualizar dias e horas disponíveis',callback_data='inicio')
  markup.add(but)
 
  bot.send_message(message.chat.id, "Retornamos a esse ponto devido a mensagem que foi enviada.\nNesse primeiro\
