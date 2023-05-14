@@ -27,6 +27,7 @@ def botao_clicado(call):
 
     markup1 = telebot.types.InlineKeyboardMarkup()
     but1 = telebot.types.InlineKeyboardButton('Locação única', callback_data='Locacao_unica')
+
     but2 = telebot.types.InlineKeyboardButton('Locação mensal', callback_data='r')
     but3 = telebot.types.InlineKeyboardButton('↩️ retornar ao ítem anterior', callback_data='inicio')
     markup1.add(but1, but2)
