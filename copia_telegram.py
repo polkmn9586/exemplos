@@ -30,17 +30,33 @@ def inicio(message):
         ultima_mensagem_id = mensagem.message_id
 
 
-...
-# Aqui podemos enviar uma mensagem para coletar um dado e enviar esse dado para a função desejada para poder trata-lo
-def iniciar_conversa(message):
-    bot.send_message(message.chat.id, "texto da mensagem que pode ser usado para pedir um texto")
-    bot.register_next_step_handler(message, "nome da função a ser chamada")
+
+
+
+
+# A primeira função é chamada normalmente tanto o seu call quando sua messagem podem ser usados com o valor normal
+# até chegar no bot.register_next_step_handler, nesse momento ele ficará a espera do que será digitado para
+#enviar para proxima função
+
+@bot.callback_query_handler(func=lambda call: call.data == 'callback do botão')
+def iniciar_conversa(call): se for (messagem)
+    bot.send_message(message ou call.message.chat.id, "texto da mensagem que pode ser usado para pedir um texto")
+    bot.register_next_step_handler(call.message, "nome da função a ser chamada")
+
+
+
+
 
 
 # Cria 1 botão com um markup , podendo desse momento em diante fazer ctrl-c ctrl-v dos botões
 "markup nome" = telebot.types.InlineKeyboardMarkup()
 "botao nome" = telebot.types.InlineKeyboardButton('texto do botão', callback_data='comando dele')
 markup.add(botao)
+
+
+
+
+
 
 
 # Atende ao tocar de um botão inline devolvendo uma mensagem de texto podendo ter a indicação para botões.
@@ -57,19 +73,32 @@ def botao_clicado(call):
     mensagem=bot.send_message(call.message.chat.id, text= "texto na mensagem", reply_markup="markup")
     ultima_mensagem=mensagem.message_id
  else:
-     
+
      bot.answer_callback_query(call.id, text="texto ao clicar no botão")
      mensagem=bot.send_message(call.message.chat.id, text="texto na mensagem", reply_markup="markup")
      ultima_mensagem = mensagem.message_id
 
 
-#Apagando a ultima mensagem colocada na tela. Ele trabalha com uma variável externa que armazena valores
+
+
+
+
+
+#Remove um teclado da tela
+def vai(message):
+    markup = ReplyKeyboardRemove(selective=False)
+    bot.send_message(message.chat.id, "Keyboard has been removed", reply_markup=markup)
 
 
 
 
 
 
+# permite criar uma lista de botões embasado em uma lista
+produtos = ['Opção 1', 'Opção 2', 'Opção 3', 'Opção 1', 'Opção 2', 'Opção 3']
+keyboard = ReplyKeyboardMarkup(row_width=1)
+for opcao in produtos:
+    keyboard.add(opcao)
 
 
 
