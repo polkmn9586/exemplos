@@ -1,18 +1,29 @@
+Organização dos dados:
 
-Criação da modificação do valor:
-A Pessoa escolhe o produto e esse nome do produto é enviado para uma função com o nome
-de produto_troca_valor , essa função armazena esse valor em uma variável para ser usada na proxima função
-e envia uma mensagem pedindo para que se digite o novo valor ela encaminha esse valor para uma nova função
-de nome produto_Valor_final , que realiza a troca do valor e emite uma mensagem de valor modificado .
+      elementos[
+                 hamburgue [
+                             x-tudo{valor:x,itens:itens[]}
+
+             ]
+
+---Elementos da estrutura:
+grupo=[categoria[elementos{valor:x,itens:[]}] ]
+elementos{}
+categoria=[]
+
+---Criação da modificação do valor do produto(lógica envolvida):
+A Pessoa escolhe o produto atravez de um conjunto de botões que foram formados atravez da leitura de uma variável
+que possui o nome dos produtos.
+ Esse nome do produto é enviado para uma função com o nome de produto_troca_valor , essa função armazena esse
+valor em uma variável para ser usada na proxima função e envia uma mensagem pedindo para que se digite o novo valor
+ela encaminha esse valor para uma nova função de nome produto_Valor_final , que realiza a troca do valor e emite
+uma mensagem de valor modificado .
 
 
-Precisa criar uma lista com os nomes do produto agregando valor
-lista_nomes[
+Organização dos dados:
 
-              {
-               "x-tudo":
-               {valor : 10.00 , itens : itens_lista}
-              }
+      elementos[
+                 hamburgue [
+                             x-tudo{valor:x,itens:[]}
 
-
-            ]
+             ]

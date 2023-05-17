@@ -33,7 +33,7 @@ def inicio(message):
 
 
 
-
+#guarda o que foi digiado e permite especificar a próxima função que será executada
 # A primeira função é chamada normalmente tanto o seu call quando sua messagem podem ser usados com o valor normal
 # até chegar no bot.register_next_step_handler, nesse momento ele ficará a espera do que será digitado para
 #enviar para proxima função
@@ -68,15 +68,15 @@ def botao_clicado(call):
  if ultima_mensagem_id!=None:
 
     bot.delete_message(call.message.chat.id,ultima_mensagem_id)
-    ultima_mensagem=None
+    ultima_mensagem_id=None
     bot.answer_callback_query(call.id, text= "texto ao clicar no botão")
     mensagem=bot.send_message(call.message.chat.id, text= "texto na mensagem", reply_markup="markup")
-    ultima_mensagem=mensagem.message_id
+    ultima_mensagem_id=mensagem.message_id
  else:
 
      bot.answer_callback_query(call.id, text="texto ao clicar no botão")
      mensagem=bot.send_message(call.message.chat.id, text="texto na mensagem", reply_markup="markup")
-     ultima_mensagem = mensagem.message_id
+     ultima_mensagem_id = mensagem.message_id
 
 
 
