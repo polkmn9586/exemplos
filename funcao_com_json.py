@@ -18,6 +18,21 @@ def lendo_arquivo_json_(arquivo_nome):
          json.dump([],arquivo2)
          return arquivo2
 
+def lendo_arquivo_json_dic(arquivo_nome):
+    """ Permite a leitura de um arquivo.json entregando o seu resultado, caso ele não exista ou esteje vazio será criado um com {}
+        e assim entregue no primeiro momento. Ele retorna se vazio um dicionário.
+         """
+    try:
+     with open(arquivo_nome, "r",encoding="utf-8") as arquivo1: # fará a leitura do arquivo
+       arquivo1.seek(0,0)
+       recebe=json.load(arquivo1)         # recebe a leitura
+
+       return recebe                     # retorna o arquivo json
+
+    except:
+        with open(arquivo_nome, "w", encoding='utf-8') as arquivo2:
+         json.dump({},arquivo2)
+         return arquivo2
 def escrevendo_json_novo(variavel,arquivo):
   """Cria um arquivo json novo e escreve nele"""
   with open(arquivo,"w",encoding='utf-8')as arquivo1:

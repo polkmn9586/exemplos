@@ -1,29 +1,28 @@
-Organização dos dados:
 
-      elementos[
-                 hamburgue [
-                             x-tudo{valor:x,itens:itens[]}
-
-             ]
-
----Elementos da estrutura:
-grupo=[categoria[elementos{valor:x,itens:[]}] ]
-elementos{}
-categoria=[]
 
 ---Criação da modificação do valor do produto(lógica envolvida):
-A Pessoa escolhe o produto atravez de um conjunto de botões que foram formados atravez da leitura de uma variável
-que possui o nome dos produtos.
- Esse nome do produto é enviado para uma função com o nome de produto_troca_valor , essa função armazena esse
-valor em uma variável para ser usada na proxima função e envia uma mensagem pedindo para que se digite o novo valor
-ela encaminha esse valor para uma nova função de nome produto_Valor_final , que realiza a troca do valor e emite
-uma mensagem de valor modificado .
+    A Pessoa escolhe o produto atravez de um conjunto de botões que foram formados atravez da leitura de uma variável
+    que possui o nome dos produtos.
+    Esse nome do produto é enviado para uma função com o nome de produto_troca_valor , essa função armazena esse
+    valor em uma variável para ser usada na proxima função e envia uma mensagem pedindo para que se digite o novo valor
+    ela encaminha esse valor para uma nova função de nome produto_Valor_final , que realiza a troca do valor e emite
+    uma mensagem de valor modificado .
 
 
-Organização dos dados:
+---Organização dos dados:
+ Elemento{categoria:{produtos{valor:x,itens:[]}}}
 
-      elementos[
-                 hamburgue [
-                             x-tudo{valor:x,itens:[]}
+17/05/2023
+--- Criação de um arquivo loja.json para armazenar os dados dos produtos da loja.
+ Usaremos uma função de leitura e criação de arquivo json, caso ele não exista. Esses dados serão salvos em
+ uma variável , para poder ser trabalhado tratada posteriormente. Aqui usamos uma função própria : lendo_arquivo_json_dic
 
-             ]
+--- Criando uma forma de armazenar dados nesse arquivo loja.json , criando categorias , produtos e itens.
+  Criamos uma variável dados que receberá a função própria , citada acima , nesse momento ela vira dic e assume
+  todos os dados do arquivo loja.json. hoje foi criada a funcionalidad de cadastro de categorias , produtos e itens.
+
+
+
+
+
+

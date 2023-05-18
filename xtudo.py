@@ -1,31 +1,31 @@
+import json
+
 import telebot
 from telebot import types
 from telebot.types import ReplyKeyboardMarkup,ReplyKeyboardRemove
 
 from xtudo_modulo import apaga_mensagem_usuario, apaga_mensagem_bot , mensagem_botao_salva, \
                          apaga_mensagem_usuario_call,mensagem_botao_salva_call,\
-                         apaga_mensagem_bot_call
+                         apaga_mensagem_bot_call,apaga_janela_selecao
+from funcao_com_json import lendo_arquivo_json_dic,escrevendo_json_novo
 
 bot=telebot.TeleBot("6218006765:AAF309hpXCmaU1r9P41zKiNK1L8gaqTMyqI")
 
 
 
+produtos_preco={}
+produto_troca=""
 
 
 ultima_mensagem_id=None
-produtos_preco={}
+categoria=""  # servira para armazenar a categoria da de algumas funções
+produto=""
+valor=""
+itens=""
 
-dados={
-        "hambúrguer":{
-                       "x-salada":{"valor":10.00,"itens":["batata","molho"]}
-                     },
-        "cachorro_quente":{
-                            "quente_vai":{"valor":10.00,"itens":["batata","molho"]}
-                          }
 
-       }
-itens=["batata","molho"]
-produto_troca=""
+dados=lendo_arquivo_json_dic("loja.json") # Leitura do arquivo json carregando a variável dados
+
 
 
 
@@ -108,8 +108,8 @@ def botao_clicado(call):
 
  global ultima_mensagem_id
 
- bot.delete_message(call.message.chat.id,ultima_mensagem_id)
- print("o")
+ bot.delete_message(call.message.chat.id,ultima_mensagem_id) # deletando mensagem da tela
+
  if ultima_mensagem_id!=None:
 
     mensagem=bot.send_message(call.message.chat.id, text= "Digite o nome da categoria que deseja criar")
@@ -123,6 +123,42 @@ def botao_clicado(call):
      bot.register_next_step_handler(call.message, adic_categoria)
 
 
+
+@bot.callback_query_handler(func=lambda call: call.data == 'cria_produto')
+def botao_clicado(call):
+
+ global ultima_mensagem_id
+
+ bot.delete_message(call.message.chat.id,ultima_mensagem_id) # deletando mensagem da tela
+ if dados=={}:
+     markup = telebot.types.InlineKeyboardMarkup()
+     botao1 = telebot.types.InlineKeyboardButton('Retorne', callback_data='inicio')
+     markup.add(botao1)
+     mensagem_botao_salva_call(bot,call,"Você ainda não possui uma categoria cadastrada , "
+                                        "precisa cadastrar uma para adicionar um produto nela",markup)
+ else:
+     if ultima_mensagem_id!=None: # executando caso o id da última_mensagem esteja vazio
+
+        lista = [x for x in dados] # criação da lista  de categoria
+
+        keyboard = ReplyKeyboardMarkup(row_width=1) # utilizando a lista para criar com os seus itens uma caixa de seleção
+        for opcao in lista:
+            keyboard.add(opcao)
+
+        mensagem_botao_salva_call(bot,call,"Escolha a categoria que deseja incluir seu produto",keyboard)
+        bot.register_next_step_handler(call.message,cria_produto_escoha_categoria )
+     else:
+         lista = [x for x in dados]  # criação da lista  de categoria
+         keyboard = ReplyKeyboardMarkup(
+             row_width=1)  # utilizando a lista para criar com os seus itens uma caixa de seleção
+         for opcao in lista:
+             keyboard.add(opcao)
+         mensagem_botao_salva_call(bot, call, "Escolha a categoria que deseja incluir seu produto",keyboard)
+         bot.register_next_step_handler(call.message,cria_produto_escoha_categoria )
+
+
+
+
 #função que cria a categoria
 def adic_categoria(message):
 
@@ -132,7 +168,8 @@ def adic_categoria(message):
     apaga_mensagem_usuario(bot,message)
     bot.delete_message(message.chat.id,ultima_mensagem_id)
 
-    dados[message.text] = None
+    dados[message.text] = None # Aqui eu crio em dados um key com o nome da minha categoria com None
+    escrevendo_json_novo(dados,"loja.json")
 
     markup  = types.InlineKeyboardMarkup()
     botao1 = types.InlineKeyboardButton('continuar criando', callback_data='cria_categoria')
@@ -140,6 +177,67 @@ def adic_categoria(message):
     markup.add(botao1,botao2)
 
     mensagem_botao_salva(bot,message,"Categoria criada com sucesso",markup)
+
+
+
+def cria_produto_escoha_categoria(message):
+
+    global ultima_mensagem_id, categoria
+    categoria = message.text # armazenando valor em categoria para ser usado na proxima função
+
+    apaga_mensagem_bot(bot,message)
+    apaga_mensagem_usuario(bot, message)
+
+    #apaga_janela_selecao(bot,"Digite o nome do produto")
+    #print("oi")
+    mensagem_botao_salva(bot,message,"Digite o nome do produto")
+    bot.register_next_step_handler(message, digite_produto)
+
+def digite_produto(message):
+
+    global ultima_mensagem_id, produto
+    produto = message.text # armazenando valor em categoria para ser usado na proxima função
+
+    apaga_mensagem_bot(bot,message)
+    apaga_mensagem_usuario(bot, message)
+
+    #apaga_janela_selecao(bot,"Digite o valor do produto")
+    mensagem_botao_salva(bot, message, "Digite o valor do produto")
+    bot.register_next_step_handler(message, digite_valor)
+
+def digite_valor(message):
+
+    global ultima_mensagem_id, valor
+    valor = message.text # armazenando valor em categoria para ser usado na proxima função
+
+    apaga_mensagem_bot(bot,message)
+    apaga_mensagem_usuario(bot, message)
+
+    #apaga_janela_selecao(bot,"Digite os itens do produto")
+    mensagem_botao_salva(bot, message, "Digite os itens do produto")
+    bot.register_next_step_handler(message, digite_itens)
+
+def digite_itens(message):
+
+    global ultima_mensagem_id, itens,dados
+    itens = message.text # armazenando valor em itens para ser usado
+    itens=itens.split()
+    apaga_mensagem_bot(bot,message)
+    apaga_mensagem_usuario(bot, message)
+
+    if dados[categoria]==None: # se for None ele precisa indicar que o proximo elemento é uma lista, depois dessa
+                               # indicação os demais serão reconhecidos como lista
+
+     dados[categoria]={produto:{"Valor":valor,"Itens":itens}} # Forma para reconhecer como lista
+
+    else:
+     dados[categoria][produto]= {"Valor": valor, "Itens": itens} # Aqui já reconhecido como lista
+
+
+    mensagem_botao_salva(bot, message, "Digite os itens do produto")
+    bot.register_next_step_handler(message, digite_itens)
+
+
 
 #----------------------------------fim-------------------------------------------------------------------------
 

@@ -1,34 +1,26 @@
-import telebot
-from telebot.types import ReplyKeyboardMarkup, KeyboardButton,ReplyKeyboardRemove
+
+casa={
+  "hambúrguer": {
+    "produto": {
+      "valor": 10,
+      "itens": []
+    }
+  },"sapo": {
+    "produto": {
+      "valor": 10,
+      "itens": []
+    }
+  }}
+
+casa["hambúrguer"]["produto1"]={"oi":"pp","cad":"oo"}
+casa["hambúrguer"]["produto2"]={"oi":"pp","cad":"oo"}
+if casa["sapo"]==None:
+ casa["sapo"]={"produto1":{"oi":"pp","cad":"oo"}}
+else:
+  casa["sapo"]["produto1"]= {"oi": "pp", "cad": "oo"}
+print(casa)
 
 
-dados={
-        "hambúrguer":{
-                       "x-salada":{"valor":10.00,"itens":["batata","molho"]}
-                     },
-        "cachorro_quente":{
-                            "quente_vai":{"valor":10.00,"itens":["batata","molho"]}
-                          }
 
-      }
-
-
-def adic_categoria(nome):
-    dados[nome] = None
-
-def adic_elementos():
-    for x in dados:
-        print(x)
-    a=input("digite o local do produto")
-    b=input("digite o nome do produto a acrescentar")
-
-    dados[a][b]=None
-    print(dados[a])
-
-while True:
-  adic_elementos()
-  """adic_categoria(input("valor? "))
-  for x in dados:
-   print(x)"""
 
 
