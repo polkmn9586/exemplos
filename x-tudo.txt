@@ -18,8 +18,14 @@
  uma variável , para poder ser trabalhado tratada posteriormente. Aqui usamos uma função própria : lendo_arquivo_json_dic
 
 --- Criando uma forma de armazenar dados nesse arquivo loja.json , criando categorias , produtos e itens.
-  Criamos uma variável dados que receberá a função própria , citada acima , nesse momento ela vira dic e assume
-  todos os dados do arquivo loja.json. hoje foi criada a funcionalidad de cadastro de categorias , produtos e itens.
+  Criamos uma variável dados que receberá a função própria e será a que irá gerar as informações para serem
+  colocadas no nosso documento json.
+  hoje foi criada a funcionalidade de cadastro de categorias , produtos e itens.
+
+18/05/2023 - 19/05/2023
+
+--- Tratamento dos erros de criar: produto e categoria. Item finalizado
+    Principal erro encontrado era o comando de apagar a mensagem anterior, foi resolvido.
 
 
 

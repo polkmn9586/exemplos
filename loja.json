@@ -1,3 +1,49 @@
 {
-  "fd": null
+  "x-tudo": {
+    "x-salada": {
+      "Valor": "14.00",
+      "Itens": [
+        "Ervilha",
+        "milho",
+        "tomate",
+        "bata"
+      ]
+    },
+    "vc": {
+      "Valor": "12",
+      "Itens": [
+        "we"
+      ]
+    },
+    "jj": {
+      "Valor": "54",
+      "Itens": [
+        "67"
+      ]
+    }
+  },
+  "cachorro-quente": {
+    "tudão sem fim": {
+      "Valor": "14.00",
+      "Itens": [
+        "ervilha",
+        "tomate",
+        "batata_palha"
+      ]
+    }
+  },
+  "jjj": null,
+  "refrigerante": {
+    "Antartica": {
+      "Valor": "8",
+      "Itens": [
+        "refri"
+      ]
+    }
+  },
+  "gdgd": null,
+  "hhhh": null,
+  "jj": null,
+  "gf": null,
+  "hg": null
 }

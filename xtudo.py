@@ -1,12 +1,14 @@
 import json
 
 import telebot
+from telebot import TeleBot
 from telebot import types
 from telebot.types import ReplyKeyboardMarkup,ReplyKeyboardRemove
 
 from xtudo_modulo import apaga_mensagem_usuario, apaga_mensagem_bot , mensagem_botao_salva, \
                          apaga_mensagem_usuario_call,mensagem_botao_salva_call,\
-                         apaga_mensagem_bot_call,apaga_janela_selecao
+                         apaga_mensagem_bot_call,apaga_janela_selecao,mensagem_botao_salva_1botao,\
+                         mensagem_botao_salva_1botao_call,delete_all_messages,apaga_mensagem,apaga_mensagem_call
 from funcao_com_json import lendo_arquivo_json_dic,escrevendo_json_novo
 
 bot=telebot.TeleBot("6218006765:AAF309hpXCmaU1r9P41zKiNK1L8gaqTMyqI")
@@ -22,151 +24,73 @@ categoria=""  # servira para armazenar a categoria da de algumas funções
 produto=""
 valor=""
 itens=""
-
+message_ids=[]
 
 dados=lendo_arquivo_json_dic("loja.json") # Leitura do arquivo json carregando a variável dados
 
 
 
 
+
+
+
 #Mensagem inicial ao escrever algo na tela
+
 @bot.message_handler(func=lambda message: True)
 def inicio(message):
 
-  global ultima_mensagem_id
+      global ultima_mensagem_id
+      apaga_mensagem(bot,message)
 
-  apaga_mensagem_usuario(bot,message)
-  if ultima_mensagem_id==None:
-
-    markup = types.InlineKeyboardMarkup() #Criação do teclado menu inicial
-    but1 = types.InlineKeyboardButton('Alterar valor do produto', callback_data='alterar')
-    but2 = types.InlineKeyboardButton('Criar produto ou item', callback_data='criar')
-    but3 = types.InlineKeyboardButton('Indisponível: produto ou item', callback_data='indisponivel')
-    but4 = types.InlineKeyboardButton('excluir: produto ou item', callback_data='excluir')
-    markup.add(but1)
-    markup.add(but2)# Incorporando os botões
-    markup.add(but3)
-    markup.add(but4)
-    mensagem_botao_salva(bot,message,"  Configuração",markup) # Mensagem com o teclado e a atualização da id da
-                                                          # ultima mensagem
-
-  else:  # A repetição da estrutura de cima, quando não há nada salvo na variável última mensagem
-      apaga_mensagem_bot(bot,message)
-
-      markup = types.InlineKeyboardMarkup() # Criando o teclado
-      but1 = types.InlineKeyboardButton('Alterar valor do produto', callback_data='alterar')
-      but2 = types.InlineKeyboardButton('Criar produto ou item', callback_data='criar')
+      markup = types.InlineKeyboardMarkup()  # Criação do teclado menu inicial
+      but1 = types.InlineKeyboardButton('Alterar valor do produto e itens', callback_data='alterar')
+      but2 = types.InlineKeyboardButton('Criar categoria ou produto', callback_data='criar')
       but3 = types.InlineKeyboardButton('Indisponível: produto ou item', callback_data='indisponivel')
       but4 = types.InlineKeyboardButton('excluir: produto ou item', callback_data='excluir')
       markup.add(but1)
-      markup.add(but2)
+      markup.add(but2)  # Incorporando os botões
       markup.add(but3)
       markup.add(but4)
-      mensagem_botao_salva(bot,message,"Configuração",markup)
+      ultima_mensagem_id=mensagem_botao_salva(bot, message, "  Configuração",markup)  # Mensagem com o teclado e a atualização da id da
 
-
-
-
-
-
-
-
-
+          # ultima mensagem
 
 
 #--------------iniciar a criação de uma categoria / produto------------------------------------------------------
 
-# pergunta o que quer criar
+# pergunta o que quer criar, produto ou categoria
 @bot.callback_query_handler(func=lambda call: call.data == 'criar')
-def botao_clicado(call):
- global ultima_mensagem_id
- apaga_mensagem_bot_call(bot,call)
+def botao_clicado4(call):
 
- if ultima_mensagem_id!=None:
 
-    markup = telebot.types.InlineKeyboardMarkup()
-    bot1= types.InlineKeyboardButton('Categoria', callback_data='cria_categoria')
-    bot2 = types.InlineKeyboardButton('Produto', callback_data='cria_produto')
-    markup.add(bot1,bot2)
-
-    mensagem=bot.send_message(call.message.chat.id, text= "Deseja criar?", reply_markup=markup)
-    ultima_mensagem_id = mensagem.message_id
- else:
+     global ultima_mensagem_id
+     apaga_mensagem_call(bot,call) # Apaga a mensagem da tela
 
      markup = telebot.types.InlineKeyboardMarkup()
-     bot1 = types.InlineKeyboardButton('Categoria', callback_data='cria_categoria')
+     bot1= types.InlineKeyboardButton('Categoria', callback_data='cria_categoria')
      bot2 = types.InlineKeyboardButton('Produto', callback_data='cria_produto')
-     markup.add(bot1, bot2)
-
-     mensagem=bot.send_message(call.message.chat.id, text="Deseja criar?", reply_markup=markup)
-     ultima_mensagem_id = mensagem.message_id
+     bot3 =types.InlineKeyboardButton('Retornar', callback_data='inicio')
+     markup.add(bot1,bot2,bot3)
+     ultima_mensagem_id=mensagem_botao_salva_call(bot,call,"Escolha categoria ou produto",markup)
 
 
 # Aqui é o momento aonde digitamos o nome da categoria
 @bot.callback_query_handler(func=lambda call: call.data == 'cria_categoria')
-def botao_clicado(call):
+def botao_clicado1(call):
 
- global ultima_mensagem_id
-
- bot.delete_message(call.message.chat.id,ultima_mensagem_id) # deletando mensagem da tela
-
- if ultima_mensagem_id!=None:
-
-    mensagem=bot.send_message(call.message.chat.id, text= "Digite o nome da categoria que deseja criar")
-    ultima_mensagem_id=mensagem.message_id
-    bot.register_next_step_handler(call.message, adic_categoria)
- else:
+         global ultima_mensagem_id
+         apaga_mensagem_call(bot,call)
+         ultima_mensagem_id=mensagem_botao_salva_call(bot,call,"Digite o nome da categoria que deseja criar")
+         bot.register_next_step_handler(call.message, adic_categoria) # Avança para uma função determinada independente
+                                                                      # da escrita
 
 
-     mensagem=bot.send_message(call.message.chat.id, text="Digite o nome da categoria que deseja criar")
-     ultima_mensagem_id = mensagem.message_id
-     bot.register_next_step_handler(call.message, adic_categoria)
-
-
-
-@bot.callback_query_handler(func=lambda call: call.data == 'cria_produto')
-def botao_clicado(call):
-
- global ultima_mensagem_id
-
- bot.delete_message(call.message.chat.id,ultima_mensagem_id) # deletando mensagem da tela
- if dados=={}:
-     markup = telebot.types.InlineKeyboardMarkup()
-     botao1 = telebot.types.InlineKeyboardButton('Retorne', callback_data='inicio')
-     markup.add(botao1)
-     mensagem_botao_salva_call(bot,call,"Você ainda não possui uma categoria cadastrada , "
-                                        "precisa cadastrar uma para adicionar um produto nela",markup)
- else:
-     if ultima_mensagem_id!=None: # executando caso o id da última_mensagem esteja vazio
-
-        lista = [x for x in dados] # criação da lista  de categoria
-
-        keyboard = ReplyKeyboardMarkup(row_width=1) # utilizando a lista para criar com os seus itens uma caixa de seleção
-        for opcao in lista:
-            keyboard.add(opcao)
-
-        mensagem_botao_salva_call(bot,call,"Escolha a categoria que deseja incluir seu produto",keyboard)
-        bot.register_next_step_handler(call.message,cria_produto_escoha_categoria )
-     else:
-         lista = [x for x in dados]  # criação da lista  de categoria
-         keyboard = ReplyKeyboardMarkup(
-             row_width=1)  # utilizando a lista para criar com os seus itens uma caixa de seleção
-         for opcao in lista:
-             keyboard.add(opcao)
-         mensagem_botao_salva_call(bot, call, "Escolha a categoria que deseja incluir seu produto",keyboard)
-         bot.register_next_step_handler(call.message,cria_produto_escoha_categoria )
-
-
-
-
-#função que cria a categoria
+#Função que cria a categoria
 def adic_categoria(message):
 
     global ultima_mensagem_id
-
-    ultima_mensagem_id=int(ultima_mensagem_id)
-    apaga_mensagem_usuario(bot,message)
     bot.delete_message(message.chat.id,ultima_mensagem_id)
+    apaga_mensagem(bot, message)
 
     dados[message.text] = None # Aqui eu crio em dados um key com o nome da minha categoria com None
     escrevendo_json_novo(dados,"loja.json")
@@ -175,67 +99,96 @@ def adic_categoria(message):
     botao1 = types.InlineKeyboardButton('continuar criando', callback_data='cria_categoria')
     botao2 = types.InlineKeyboardButton('retornar ao início', callback_data='inicio')
     markup.add(botao1,botao2)
+    ultima_mensagem_id=mensagem_botao_salva(bot,message,f"Categoria criada com sucesso: {message.text}",markup)
 
-    mensagem_botao_salva(bot,message,"Categoria criada com sucesso",markup)
 
 
+#Essa função será chamada no momento em que se tenta criar um produto ou um produto sem uma categoria
+@bot.callback_query_handler(func=lambda call: call.data == 'cria_produto')
+def botao_clicado3(call):
+        global ultima_mensagem_id
+        apaga_mensagem_call(bot,call)
+        if dados == {}: # Caso do loja.json vazio
+
+            markup = telebot.types.InlineKeyboardMarkup()
+            botao1 = telebot.types.InlineKeyboardButton('Retorne', callback_data='inicio')
+            markup.add(botao1)
+            mensagem_botao_salva_call(bot, call, "Você ainda não possui uma categoria cadastrada , "
+                                                 "precisa cadastrar uma para adicionar um produto nela", markup)
+        else:
+
+            ultima_mensagem_id = int(ultima_mensagem_id)
+            lista = [x for x in dados]  # criação da lista  de categoria
+            keyboard = ReplyKeyboardMarkup(
+                row_width=1)  # utilizando a lista para criar com os seus itens uma caixa de seleção
+
+            for opcao in lista:
+                keyboard.add(opcao)
+
+
+            ultima_mensagem_id=mensagem_botao_salva_call(bot, call, "Escolha a categoria que deseja incluir seu produto", keyboard)
+            bot.register_next_step_handler(call.message, cria_produto_escoha_categoria)
 
 def cria_produto_escoha_categoria(message):
 
     global ultima_mensagem_id, categoria
+    bot.delete_message(message.chat.id, ultima_mensagem_id)
+    apaga_mensagem(bot,message)
     categoria = message.text # armazenando valor em categoria para ser usado na proxima função
+    ultima_mensagem_id = apaga_janela_selecao(bot, message, "Digite o nome do produto")
 
-    apaga_mensagem_bot(bot,message)
-    apaga_mensagem_usuario(bot, message)
-
-    #apaga_janela_selecao(bot,"Digite o nome do produto")
-    #print("oi")
-    mensagem_botao_salva(bot,message,"Digite o nome do produto")
     bot.register_next_step_handler(message, digite_produto)
-
 def digite_produto(message):
 
     global ultima_mensagem_id, produto
+    bot.delete_message(message.chat.id, ultima_mensagem_id)
+    apaga_mensagem(bot,message)
     produto = message.text # armazenando valor em categoria para ser usado na proxima função
 
-    apaga_mensagem_bot(bot,message)
-    apaga_mensagem_usuario(bot, message)
-
     #apaga_janela_selecao(bot,"Digite o valor do produto")
-    mensagem_botao_salva(bot, message, "Digite o valor do produto")
+    ultima_mensagem_id=mensagem_botao_salva(bot, message, "Digite o valor do produto")
     bot.register_next_step_handler(message, digite_valor)
-
 def digite_valor(message):
 
     global ultima_mensagem_id, valor
     valor = message.text # armazenando valor em categoria para ser usado na proxima função
-
-    apaga_mensagem_bot(bot,message)
-    apaga_mensagem_usuario(bot, message)
-
+    bot.delete_message(message.chat.id, ultima_mensagem_id)
+    apaga_mensagem(bot,message)
     #apaga_janela_selecao(bot,"Digite os itens do produto")
-    mensagem_botao_salva(bot, message, "Digite os itens do produto")
+    ultima_mensagem_id=mensagem_botao_salva(bot, message, "Digite os itens do produto")
     bot.register_next_step_handler(message, digite_itens)
-
 def digite_itens(message):
 
     global ultima_mensagem_id, itens,dados
+    bot.delete_message(message.chat.id, ultima_mensagem_id)
+    apaga_mensagem(bot,message)
+
     itens = message.text # armazenando valor em itens para ser usado
     itens=itens.split()
-    apaga_mensagem_bot(bot,message)
-    apaga_mensagem_usuario(bot, message)
 
-    if dados[categoria]==None: # se for None ele precisa indicar que o proximo elemento é uma lista, depois dessa
-                               # indicação os demais serão reconhecidos como lista
 
-     dados[categoria]={produto:{"Valor":valor,"Itens":itens}} # Forma para reconhecer como lista
+    markup = telebot.types.InlineKeyboardMarkup()
+    botao1 = telebot.types.InlineKeyboardButton('Continuar', callback_data='cria_produto')
+    botao2 = telebot.types.InlineKeyboardButton('Menu inicial', callback_data='inicio')
+    markup.add(botao1,botao2)
 
+    if dados[categoria]==None: # se for None ele precisa indicar que o proximo elemento é um dic, depois dessa
+                               # indicação os demais serão reconhecidos como dic
+
+     dados[categoria]={produto:{"Valor":valor,"Itens":itens}} # Forma para reconhecer como dic
+
+     escrevendo_json_novo(dados,"loja.json")
     else:
-     dados[categoria][produto]= {"Valor": valor, "Itens": itens} # Aqui já reconhecido como lista
+     dados[categoria][produto]= {"Valor": valor, "Itens": itens} # Aqui já reconhecido como dic
 
+     escrevendo_json_novo(dados, "loja.json")
+    mensagem_botao_salva(bot, message, f"Cadastro:"
+                                       f"\nCategoria: {categoria}"
+                                       f"\nProduto: {produto}"
+                                       f"\nValor: {valor}"
+                                       f"\nItens: {itens}"
+                                       f"\nPara continuar cadastrando produto clique em continuar",markup)
 
-    mensagem_botao_salva(bot, message, "Digite os itens do produto")
-    bot.register_next_step_handler(message, digite_itens)
 
 
 
@@ -249,9 +202,7 @@ def digite_itens(message):
 def inicio(call):
 
   global ultima_mensagem_id
-
-  apaga_mensagem_usuario_call(bot,call)# Apaga a mensagem que chamou a função
-
+  apaga_mensagem_call(bot,call)
   if ultima_mensagem_id==None:
 
     markup = types.InlineKeyboardMarkup() #Criação do teclado menu inicial
@@ -266,7 +217,7 @@ def inicio(call):
     mensagem_botao_salva_call(bot,call,"Configuração",markup)
 
   else:
-
+        # Apaga a mensagem que chamou a função
       ultima_mensagem_id = None
 
       markup = types.InlineKeyboardMarkup() # Criando o teclado
@@ -286,10 +237,9 @@ def inicio(call):
 @bot.callback_query_handler(func=lambda call: call.data == 'alterar')
 def botao_clicado(call):
   global ultima_mensagem_id
-  apaga_mensagem_usuario_call(bot,call)
+
   if ultima_mensagem_id !=None:
 
-    bot.delete_message(call.message.chat.id, ultima_mensagem_id)
     ultima_mensagem_id=None
     markup = types.InlineKeyboardMarkup()
     but1 = types.InlineKeyboardButton('Produto', callback_data='produto')
@@ -328,7 +278,7 @@ def botao_clicado(call):
  if ultima_mensagem_id!=None:
     global produto
 
-    bot.delete_message(call.message.chat.id, ultima_mensagem_id)
+
     ultima_mensagem_id = None
     keyboard = ReplyKeyboardMarkup(row_width=1)
     for opcao in produtos_preco.keys():
@@ -352,8 +302,7 @@ def produto_troca_valor(message):
  global produto_troca
  global ultima_mensagem_id
 
- bot.delete_message(message.chat.id,message.message_id)
- bot.delete_message(message.chat.id, ultima_mensagem_id)
+
  ultima_mensagem_id = None
 
  produto_troca=message.text
@@ -366,9 +315,8 @@ def produto_troca_valor(message):
 def produto_valor_final(message):
     global produto_troca
     global ultima_mensagem_id
-    bot.delete_message(message.chat.id, message.message_id)
-    bot.delete_message(message.chat.id, ultima_mensagem_id)
-    ultima_mensagem_id = None
+
+  
     produtos_preco[produto_troca]=message.text
 
 
