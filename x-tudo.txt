@@ -24,8 +24,14 @@
 
 18/05/2023 - 19/05/2023
 
---- Tratamento dos erros de criar: produto e categoria. Item finalizado
-    Principal erro encontrado era o comando de apagar a mensagem anterior, foi resolvido.
+--- Tratamento dos erros de criação: produto e categoria. Item finalizado
+    Principal erro encontrado era o comando de apagar a mensagem anterior, era preciso usá-lo dentro de um if,
+    pois quando a ultima_mensagem_id estava vazia dava erro . Foi resolvido.
+
+--- Exclusao de categorias , produtos e itens
+  Será construida uma função que crie uma caixa de seleção com todas as categorias criadas , depois da escolha vc sera levado
+  a uma mensagem de confirmação de esclusão e a explicação que todos os produtos dessa categoria serão automaticamente excluidos,
+  se aceito , será recebida a mensagem de exlusão com sucesso com o nome da categoria
 
 
 
