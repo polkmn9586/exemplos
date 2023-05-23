@@ -31,7 +31,8 @@
 --- Exclusao de categorias , produtos e itens
   Será construida uma função que crie uma caixa de seleção com todas as categorias criadas , depois da escolha vc sera levado
   a uma mensagem de confirmação de esclusão e a explicação que todos os produtos dessa categoria serão automaticamente excluidos,
-  se aceito , será recebida a mensagem de exlusão com sucesso com o nome da categoria
+  se aceito , será recebida a mensagem de exlusão com sucesso com o nome da categoria . Feito
+  tentando agora com os produtos
 
 
 
