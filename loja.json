@@ -1,22 +1,5 @@
 {
-  "x-tud": {
-    "x-salada": {
-      "Valor": "45",
-      "Itens": [
-        "Sr",
-        "yu"
-      ]
-    }
-  },
-  "hgt": {
-    "hgtr": {
-      "Valor": "43",
-      "Itens": [
-        "ret",
-        "er",
-        "er",
-        "er"
-      ]
-    }
-  }
+  "Cachorro-Quente": {},
+  "Refrigerante": {},
+  "hh": {}
 }

@@ -66,18 +66,20 @@ def limpar_tela(call):
 
 
 #-----------------------------Imprimindo o catalogo---------------------------------------------------------
-texto = ""
-for categoria, produtos in dados.items():
-    texto += f"- Categoria: {categoria}\n\n"
-    for produto, info in produtos.items():
-        texto += f"  Produto: {produto}\n"
-        texto += f"  Valor: {info['Valor']}\n"
-        texto += f"  Itens: {', '.join(info['Itens'])}\n\n"
+
 
 @bot.callback_query_handler(func=lambda call: call.data=='mensagem')
 def enviar_mensagem(call):
     global ultima_mensagem_id, texto
+    texto = ""
+    for categoria, produtos in dados.items():
+        texto += f"- Categoria: {categoria}\n\n"
+        for produto, info in produtos.items():
+            texto += f"  Produto: {produto}\n"
+            texto += f"  Valor: {info['Valor']}\n"
+            texto += f"  Itens: {', '.join(info['Itens'])}\n\n"
     if ultima_mensagem_id!=None:
+
      bot.delete_message(call.message.chat.id, ultima_mensagem_id)
 
     ultima_mensagem_id=mensagem_botao_salva_1botao_call(bot,call,texto,"Menu iniciar","inicio")
@@ -104,7 +106,7 @@ def inicio(message):
       markup.add(but2)
       markup.add(but4)  # Incorporando os botões
       markup.add(but1)
-      ultima_mensagem_id=mensagem_botao_salva(bot, message, "  Configuração",markup)  # Mensagem com o teclado e a atualização da id da
+      ultima_mensagem_id=mensagem_botao_salva(bot, message, "--------------------Configuração--------------------",markup)  # Mensagem com o teclado e a atualização da id da
       apaga_mensagem(bot, message)
 
           # ultima mensagem
@@ -273,8 +275,10 @@ def categoria_iten(message):
 
  else:
      keyboard = cria_caixa_selecao(dados[categoria_exclui_item])
-     ultima_mensagem_id = mensagem_botao_salva(bot, message, "Escolha o produto em que se encontra o item",keyboard)
      apaga_mensagem(bot, message)
+     ultima_mensagem_id = mensagem_botao_salva(bot, message, "Escolha o produto em que se encontra o item",keyboard)
+
+
      bot.register_next_step_handler(message, produtos_iten)
 
 #Aqui será armazenado o produto e escolhido o item
@@ -504,7 +508,7 @@ def inicio(call):
     markup.add(but4)
     markup.add(but1)
     markup.add(but3)
-    mensagem_botao_salva_call(bot,call,"Configuração",markup)
+    mensagem_botao_salva_call(bot,call,"--------------------Configuração--------------------",markup)
 
   else:
         # Apaga a mensagem que chamou a função
@@ -518,7 +522,7 @@ def inicio(call):
         markup.add(but4)
         markup.add(but1)
         markup.add(but3)
-        ultima_mensagem_id=mensagem_botao_salva_call(bot,call,"Configuração",markup)
+        ultima_mensagem_id=mensagem_botao_salva_call(bot,call,"--------------------Configuração--------------------",markup)
         apaga_mensagem_call(bot, call)
 
 
