@@ -34,8 +34,16 @@
   se aceito , será recebida a mensagem de exlusão com sucesso com o nome da categoria . Feito
   tentando agora com os produtos
 
+--- criação de um item
+    O item  precisa ter uma variável global e a opção de criação criará o intem sem no momento liga-lo a um produto.
+    Ele precisa ser transformado em uma lista e logo depois em um set, lembrando que itens estará acima de categoria
+    na organização
+    Logo depois colocaremos ele  para ser escolhido na parte dos itens dos produtos, com a opção de  ir para a
+    função de criar itens caso estejá vazia a lista ou até mesmo de criar itens por não ter o item na lista
 
 
+
+--
 
 
 

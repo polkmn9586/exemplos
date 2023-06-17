@@ -1,12 +1,14 @@
+from funcao_com_json import lendo_arquivo_json_ , lendo_arquivo_json_dic
 
-for i in range(300 - 1, 0, -1):
- print(i)
+casa=lendo_arquivo_json_("loja.json")
+dicionario=""
+lista=""
+for x in casa.keys():
+    if casa[x] != {}:
+     casa1=casa[x]
+     lista+=f"{x}: "
+     for b in casa1:
+         lista+=f"{b}, "
+     lista+="\n"
+     dicionario=lista
 
--Categoria: x-tudo
-  Produto:x_salada1
-  Valor: 45
-  Itens:Sr , yu
---------------------------
-  Produto:x_salada
-  Valor: 45
-  Itens:Sr , yu

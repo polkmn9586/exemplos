@@ -32,9 +32,14 @@ def lendo_arquivo_json_dic(arquivo_nome):
     except:
         with open(arquivo_nome, "w", encoding='utf-8') as arquivo2:
          json.dump({},arquivo2)
-         return arquivo2
+         return {}
+
+
+
 def escrevendo_json_novo(variavel,arquivo):
   """Cria um arquivo json novo e escreve nele"""
+  if isinstance(variavel , set):
+      variavel = list(variavel)
   with open(arquivo,"w",encoding='utf-8')as arquivo1:
       json.dump(variavel,arquivo1,ensure_ascii=False,indent=2)
 def limp_tela():
