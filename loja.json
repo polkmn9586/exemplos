@@ -1,3 +1,23 @@
 {
-  "io": {}
+  "Hamburguer": {
+    "x-tudo": {
+      "Valor": "45",
+      "Itens": [
+        "ovo",
+        "molho",
+        "min"
+      ]
+    }
+  },
+  "Hot-Dog": {
+    "quentão": {
+      "Valor": "34",
+      "Itens": [
+        "ovo",
+        "molho",
+        "min"
+      ]
+    }
+  }
+
 }
