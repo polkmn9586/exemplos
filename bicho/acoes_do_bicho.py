@@ -14,7 +14,36 @@ import re
 from programa_do_bicho2 import Ui_Form
 from criador import Criador
 from PySide6.QtGui import QIcon
-class MainWindows(QWidget,Ui_Form):
+from exemplo1 import   treino_grupos_sorteados_juntos, bicho,grupos_provaveis
+from pathlib import Path
+
+class Dicionario():
+    def __init__(self,dicionario:dict,*args,**kwargs):
+
+        self.dicionario=None
+
+
+
+    @property
+    def lista(self):
+
+        recebe=self.dicionario.keys()
+        recebe=list(recebe)
+        return recebe
+
+    def numeros(self,lista):
+        recebe=self.dicionario[lista].keys()
+        return recebe
+    def repeticao(self,lista,numero):
+        recebe = self.dicionario[lista]
+
+        recebe = recebe[numero]
+        return recebe
+    #@property
+
+
+
+class MainWindows(QWidget,Ui_Form,Dicionario):
 
    def __init__(self):
         super(MainWindows,self).__init__()
@@ -23,12 +52,11 @@ class MainWindows(QWidget,Ui_Form):
 
         self.menu_init()
         self.menu_jogos_acumulados()
-        self.menu_jogos_sorteados()
+
         self.adjustSize()
         self.setFixedSize(self.width(), self.height())
         self.menu_inserir_jogos()
-
-
+        self.menu_estatistica_terno_e_4_de_grupo()
 
    def menu_init(self):
 
@@ -41,14 +69,26 @@ class MainWindows(QWidget,Ui_Form):
         self._jogos_escolhidos_por_dia_data = [] # Aqui a lista dos jogos
                                                  # acumulados dos dias escolhidos com a data
         self.dicionario_dezenas_mais_dadas = {}# possui as dezenas e quantidade de vezes que foi dada
-        self.lista_bichos_data=[]#lista com os grupos sorteados de acordo com a data determinada
+
+
+        self.lista_bichos_data=[]      #lista com os grupos sorteados de acordo com a data determinada
+        self.lista_bichos_data2 = []
+        self.lista_bichos_data3 = []
+        self.lista_bichos_data4 = []
+        self.lista_bichos_data5 = []
+        self.lista_bicho_5sorteios=[]#Criar uma lista com 5 listas de grupos sorteados , criado : _lista_de_bichos1
+
+
         self.dicionario_bicho_atraso = {}# dicionário com o bicho e o atraso
         self.bichos_tempo_espera={}# Dicionário com bicho e lista do tempo que demorou para sair
         self.bicho_provavel=[]# lista de bichos provaveis de serem sorteados
-
+        self.relacao_grupos_provaveis={} # biblioteca que gera um dic dos possíveis grupos em cada sorteio para jogar
+        self.grupos_provaveis_preparados={} #objeto que permite extrair elementos do dic self.relacao_grupos_provaveis
         self.bicho_aposta = {}
 
         self._lista_grupos = []
+        self.menor=25
+        self.maior=30
 
    def menu_jogos_acumulados(self):
 
@@ -57,17 +97,9 @@ class MainWindows(QWidget,Ui_Form):
             self.comb_final.addItems(self.lista_dos_dias)
 
             self.push_g_mais.clicked.connect(self.grupos_mais_dados_acumulado)
-            self.push_g_sorteio.clicked.connect(self._prejuizo_ganho_grupo)
+            self.push_g_sorteio.clicked.connect(self._lista_de_bichos1)
 
             self.valor=None
-
-   def menu_jogos_sorteados(self):
-
-
-
-
-            self.label_d_mais.setText("#-#-#-#-#-#-#-#-#-#")
-            self.push_amigo.clicked.connect(self._acumulo_de_jogos_amigos)
 
    def menu_inserir_jogos(self):
 
@@ -76,6 +108,12 @@ class MainWindows(QWidget,Ui_Form):
         self.line_ins_jogos.setText("1")
         #self.enviar_jogos=self.push_ins_jogos
         self.push_ins_jogos.clicked.connect(self.adicionar_jogos)
+
+   def menu_terno_e_4_de_grupo(self):
+       self.push_g_sorteio.clicked.connect(self._lista_de_bichos1)
+
+   def menu_estatistica_terno_e_4_de_grupo(self):
+       self.pushButton.clicked.connect(self._lista_de_bichos1)
 
 
    @property
@@ -96,6 +134,7 @@ class MainWindows(QWidget,Ui_Form):
         return lista_dos_dias
    @property
    def primeira_data_arquivo(self):
+        print("primeira_data_arquivo")
 
         for x in self._arquivo[0].keys():
             ...
@@ -103,89 +142,16 @@ class MainWindows(QWidget,Ui_Form):
 
    @property
    def ultima_data_arquivo(self):
+        print("ultima_data_arquivo")
 
         for x in self._arquivo[-1].keys():
           ...
         return x
 
-
-   def _acumulo_de_jogos_amigos(self):
-        print("_acumulo_de_jogos_amigos")
-        self._jogos_escolhidos_por_dia=[]
-        data_final_arquivo=self.ultima_data_arquivo
-        data_final_arquivo=datetime.strptime(data_final_arquivo,"%d/%m/%Y") # pegando a ultima data do
-                                                                            # arquivo para conferência
-
-        data_final=self.line_data_amigos.text() #data_final recebe data final em str
-        data_final=datetime.strptime(data_final,"%d/%m/%Y")# faremos a conversão da str
-                                                     # em data, colocando em data_final
-        if data_final_arquivo < data_final: # Lógica criada para pegar o último dia no
-                                            # caso de uma data maior
-            data_final=data_final_arquivo
-
-        data=data_final-timedelta(days=9) # agora como data , tiramos 5 dias
-        data=data.strftime("%d/%m/%Y") # retransformamos em str
-        data_final = data_final-timedelta(days=1) # retirando 1 dia da data escolhida do sorteio
-        data_final=data_final.strftime("%d/%m/%Y")# retransformamos em str
-
-        lista_coonvertida_jogos_excluidos = [3,4] # jogos excluídos
-
-        lista_de_jogos = self._arquivo  # Carregando todos os jogos
-
-        chave_saida="" # chave usada para sair da repetição
-        chave_de_entrada=0 # chave usada para alterar o valor da data
-
-        for numeracao_do_item, item_lista in enumerate(lista_de_jogos):  # Vou acessar cada ítem da lista
-                                                                         # que é uma biblioteca
-            if chave_saida=="ok":
-                break
-            for chave_do_item in item_lista.keys():  # Explorando cada  chave dos itens da lista
-                                                     #  procurando a data
-                if chave_saida == "ok":
-                  break
-
-
-                if chave_de_entrada==1:# Caso já tenha acessado a primeira data esse elemento será
-                                      # modificado para 1 e data mudará o seu valor
-                     data=chave_do_item
-
-
-
-                if chave_do_item == data:  # Aqui quando achamos a data desejado, começo da lógica
-
-                    chave_de_entrada=1
-
-                    for ordenacao_itens_dia, itens_do_dia in enumerate(lista_de_jogos[numeracao_do_item][chave_do_item]):  # Aqui vamos coletar os jogos
-
-                        if ordenacao_itens_dia in lista_coonvertida_jogos_excluidos:  # Lógica para pular se for o jogo escolhido
-
-                            continue
-
-
-                        self._jogos_escolhidos_por_dia.append(itens_do_dia)  # jogo adicionado
-
-
-                    if chave_do_item == data_final:  # Aqui se for = a data de termino finaliza tudo
-                        chave_saida = "ok"
-                        grupos_mais_dados_2=[]
-                        grupos_mais_dados_2_ran=[]
-                        grupos_mais_dados=self._dicionario_dezenas_mais_dados(self._jogos_escolhidos_por_dia)
-                        for chave , valor in grupos_mais_dados.items():
-                            if valor == 2:
-                                chave=int(chave)
-                                grupos_mais_dados_2.append(chave)
-
-
-
-                        grupos_mais_dados_2_ran=sample(grupos_mais_dados_2,10)
-                        self.label_d_mais.setText(str(grupos_mais_dados_2_ran))
-
-                        break
-
    def _dicionario_dezenas_mais_dados(self, lista):
         """ Cria um dicionário de dezenas com sua quantidade de vezes
         sortiada, suprindo self.dicionario_dezenas_mais_dadas"""
-        print("_grupos_mais_dados")
+        print("_dicionario_dezenas_mais_dados")
         lista_agrupamento = {}
         self._lista_grupos = []
         for itens in lista:
@@ -211,77 +177,13 @@ class MainWindows(QWidget,Ui_Form):
         self.data_final =self.comb_final.currentText()
         self._acumulo_de_jogos()
 
-   def _acumulo_de_jogos(self, *args):
-        """Gera uma lista de dicionário com os jogos sem data dos dias escolhidos ,
-            retornando a mesma e suprindo self._jogos_escolhidos_por_dia"""
-        print("_acumulo_de_jogos")
-        self._jogos_escolhidos_por_dia = []
-        self._jogos_escolhidos_por_dia_data = []
-        data = self.comb_inicio.currentText()  # Pegando data inicial
-        data_final = self.comb_final.currentText()  # Pegando data final
 
-        sorteio = {11: 0, 14: 1, 16: 2, 19: 3, 21: 4}  # Usaremos  para  escolher as partidas
-        # do  jogo que iremos cortar
-
-        lista_coonvertida_jogos_excluidos = []  # criando uma lista com o que não vai ser usado
-        if self.check_11.isChecked():
-            lista_coonvertida_jogos_excluidos.append(0)
-        if self.check_14.isChecked():
-            lista_coonvertida_jogos_excluidos.append(1)
-        if self.check_16.isChecked():
-            lista_coonvertida_jogos_excluidos.append(2)
-        if self.check_19.isChecked():
-            lista_coonvertida_jogos_excluidos.append(3)
-        if self.check_21.isChecked():
-            lista_coonvertida_jogos_excluidos.append(4)
-
-        lista_de_jogos = self._arquivo  # Carregando todos os jogos
-
-        chave_saida = ""  # chave usada para sair da repetição
-        chave_de_entrada = 0  # chave usada para alterar o valor da data
-
-        for numeracao_do_item, item_lista in enumerate(lista_de_jogos):  # Vou acessar cada ítem da lista
-            # que é uma biblioteca
-            if chave_saida == "ok":
-                break
-            for chave_do_item in item_lista.keys():  # Explorando cada  chave dos itens da lista
-                #  procurando a data
-                if chave_saida == "ok":
-                    break
-
-                if chave_de_entrada == 1:  # Caso já tenha acessado a primeira data esse elemento será
-                    # modificado para 1 e data mudará o seu valor
-
-                    data = chave_do_item  # Aqui data se modifica recebendo o valor da data corrente
-
-                if chave_do_item == data:  # Aqui quando achamos a data desejado, começo da lógica
-
-                    chave_de_entrada = 1
-                    recebe = []
-                    for ordenacao_itens_dia, itens_do_dia in enumerate(
-                            lista_de_jogos[numeracao_do_item][chave_do_item]):  # Aqui vamos coletar os jogos
-
-                        if ordenacao_itens_dia in lista_coonvertida_jogos_excluidos:  # Lógica para pular se for o jogo escolhido
-
-                            continue
-
-                        recebe.append(itens_do_dia)
-                        self._jogos_escolhidos_por_dia.append(itens_do_dia)  # jogo adicionado
-
-                    self._jogos_escolhidos_por_dia_data.append({chave_do_item: recebe})
-
-                    if chave_do_item == data_final:  # Aqui se for = a data de termino finaliza tudo
-                        chave_saida = "ok"
-                        print(self._jogos_escolhidos_por_dia)
-                        return self._jogos_escolhidos_por_dia
-
-                        break
 
    def adicionar_jogos(self):
           print("adicionar_jogos")
           try:
             lista=literal_eval(self.line_ins_jogos.text())# Convertendo str em lista
-            print(lista)
+
             if isinstance(lista, list) and lista !="": # verificando se está vazia ou se é uma lista
                 self.line_ins_jogos.setText("Lista enviada")
                 lista_nova = []  # recebo a lista só com os jogos
@@ -400,115 +302,268 @@ class MainWindows(QWidget,Ui_Form):
        self._jogos_escolhidos_por_dia=[]
 
 
+   def _acumulo_de_jogos(self, *args):
+        """Gera uma lista de dicionário com os jogos sem data dos dias escolhidos ,
+            retornando a mesma e suprindo self._jogos_escolhidos_por_dia"""
+        print("_acumulo_de_jogos")
+        self._jogos_escolhidos_por_dia = []
+        self._jogos_escolhidos_por_dia_data = []
+        data = self.comb_inicio.currentText()  # Pegando data inicial
+        data_final = self.comb_final.currentText()  # Pegando data final
+
+        sorteio = {11: 0, 14: 1, 16: 2, 19: 3, 21: 4}  # Usaremos  para  escolher as partidas
+        # do  jogo que iremos cortar
+
+        lista_coonvertida_jogos_excluidos = []  # criando uma lista com o que não vai ser usado
+        if self.check_11.isChecked():
+            lista_coonvertida_jogos_excluidos.append(0)
+        if self.check_14.isChecked():
+            lista_coonvertida_jogos_excluidos.append(1)
+        if self.check_16.isChecked():
+            lista_coonvertida_jogos_excluidos.append(2)
+        if self.check_19.isChecked():
+            lista_coonvertida_jogos_excluidos.append(3)
+        if self.check_21.isChecked():
+            lista_coonvertida_jogos_excluidos.append(4)
+
+        lista_de_jogos = self._arquivo  # Carregando todos os jogos
+
+        chave_saida = ""  # chave usada para sair da repetição
+        chave_de_entrada = 0  # chave usada para alterar o valor da data
+
+        for numeracao_do_item, item_lista in enumerate(lista_de_jogos):  # Vou acessar cada ítem da lista
+            # que é uma biblioteca
+            if chave_saida == "ok":
+                break
+            for chave_do_item in item_lista.keys():  # Explorando cada  chave dos itens da lista
+                #  procurando a data
+                if chave_saida == "ok":
+                    break
+
+                if chave_de_entrada == 1:  # Caso já tenha acessado a primeira data esse elemento será
+                    # modificado para 1 e data mudará o seu valor
+
+                    data = chave_do_item  # Aqui data se modifica recebendo o valor da data corrente
+
+                if chave_do_item == data:  # Aqui quando achamos a data desejado, começo da lógica
+
+                    chave_de_entrada = 1
+                    recebe = []
+                    for ordenacao_itens_dia, itens_do_dia in enumerate(
+                            lista_de_jogos[numeracao_do_item][chave_do_item]):  # Aqui vamos coletar os jogos
+
+                        if ordenacao_itens_dia in lista_coonvertida_jogos_excluidos:  # Lógica para pular se for o jogo escolhido
+
+                            continue
+
+                        recebe.append(itens_do_dia)
+                        self._jogos_escolhidos_por_dia.append(itens_do_dia)  # jogo adicionado
+
+                    self._jogos_escolhidos_por_dia_data.append({chave_do_item: recebe})
+
+                    if chave_do_item == data_final:  # Aqui se for = a data de termino finaliza tudo
+                        chave_saida = "ok"
+                        print(f"vamos:{self._jogos_escolhidos_por_dia_data}")
+                        return self._jogos_escolhidos_por_dia
+
+                        break
+
+   def _lista_de_bichos1(self):
+       """Cria uma lista com os números dos grupos sortiados dos jogos escolhidos por data, primeiro passo para achar os
+           grupos ideais para serem jogados, criando 5 listas em variaveis referentes ao sorteio"""
+       print("_lista_de_bichos1")
+       self._d_inicial_final()
+
+       # for cc in self._jogos_escolhidos_por_dia_data: # Texte printa todos os jogos com data e jogos
+       # print(cc)
+
+
+       resultado = []
+
+       escolhas_jogos = {0: "l-te 2", 1: "l-te 3", 2: "l-te 4", 3: "l-te 5",
+                         4: "l-te 6"}  # aqui  opções para escolha de jogos
+       escolhas_jogos_arma = {0: self.lista_bichos_data, 1: self.lista_bichos_data2, 2: self.lista_bichos_data3,
+                              3: self.lista_bichos_data4,
+                              4: self.lista_bichos_data5}  # aqui  opções para escolha de variaveis para
+
+       # armazenar a lista dos bichos
+       #Vamos percorrer os 5 sorteios como cabeçalho e para cada sorteio vamos percorrer um dic com data e jogos
+       # e fazer operações
+
+       for x in range(
+               5):  # correrrá 5 posições para usar x para biblioteca das escolhas acima, mudando assim para criar 5 listas
+           # , esse for irá nos levar para a construção da próxima lista com o novo prémio
+
+           resultado = []  # zerando resultado para próxima lista de grupos
+
+           # Mais um for que sera um cabeçalho iremos correr todas as datas
+           for dicionario in self._jogos_escolhidos_por_dia_data:  # chama um dicionário composto por uma data e uma lista de jogos
+               # , irá percorrer data por data, esse for fechará a data para o sorteio
+
+               #
+               for data, jogos in dicionario.items():  # irá percorrer as listas do dia em destaque, em média 4 jogos
+                   for valor in jogos:  # valor é um jogo, uma bibliotéca com os prémios
+                       l_te_2 = valor.get(escolhas_jogos[x], "")
+                       # Usando regex para encontrar os dois últimos números após o hífen
+                       numeros = re.findall(r'-(\d+)$', l_te_2)  # armazenando o grupo
+                       if numeros:
+                           resultado.append(
+                               int(numeros[0]))  # salvando o grupo em resultados , lebrando que ele só ira servir
+                           # para cada lista de bicho tendo que ser apagado ao iniciar uma nova
+
+               escolhas_jogos_arma[x] = resultado # aqui colocamos em cada posição do 0 ao 5 uma  lista obtendo 5
+                                                  # listas, que correspondem ao 5 sorteios
+
+           lista=[] #vamos juntar as 5 listas aqui para criar o tempo de espera
+           for itens,listas in escolhas_jogos_arma.items():#colocando com for a list em lista
+            lista.append(listas)
+
+       # essa função nos retorna 5 listas dentro de um dicionário
+       # com os grupos possibilidade de sorteio
+       self.lista_bicho_5sorteios=lista
+       self.self_sender=self.sender()
+       if self.self_sender==self.pushButton:
+          treino_grupos_sorteados_juntos(self,self.lista_bicho_5sorteios,self.lineEdit.text(),self.lineEdit_2.text(),self.lineEdit_3.text())
+       if self.self_sender == self.push_g_sorteio:
+
+           grupos_provaveis(self, self.lista_bicho_5sorteios, self.lineEdit_6.text(),
+                                          self.lineEdit_7.text(), self.lineEdit_8.text())
+
+
+       #self._criar_dicionario_tempos_de_espera()
+       #self.randon_provaveis()  # chamando esse metodo para colocar os elementos da lista dos jogos
+       # escolhidos nos lugares do sorteio
+
+   def randon_provaveis(self):
+        print("randon_provaveis")
+        self.dicionario = self.bicho_provavel #carrega em dicionario os grupos de 0 a 4 que serão usados
+
+        #print(f"vamos  {self.dicionario}") # Imprimi o self dicionário
+        #print(self.numeros(0))# imprimi um texte de um grupo
+
+
+        if len(self.bicho_provavel[0])>=1:
+            recebe=list(map(str,self.numeros(0)))
+            #print(recebe)
+            self.combo_g_sorteio.clear()
+            self.combo_g_sorteio.addItems(sample(recebe,1))
+        else:
+            self.combo_g_sorteio.clear()
+            self.combo_g_sorteio.addItems(["Sem Grupo"])
+
+
+
+        if len(self.bicho_provavel[1])>=1:
+            recebe = list(map(str, self.numeros(1)))
+            # print(recebe)
+            self.combo_g_sorteio_2.clear()
+            self.combo_g_sorteio_2.addItems(sample(recebe,1))
+        else:
+            self.combo_g_sorteio_2.clear()
+            self.combo_g_sorteio_2.addItems(["vazio"])
+
+        if len(self.bicho_provavel[2])>=1:
+            recebe = list(map(str, self.numeros(2)))
+            # print(recebe)
+            self.combo_g_sorteio_3.clear()
+            self.combo_g_sorteio_3.addItems(sample(recebe,1))
+        else:
+            self.combo_g_sorteio_3.clear()
+            self.combo_g_sorteio_3.addItems(["vazio"])
+
+        if len(self.bicho_provavel[3]) >= 1:
+            recebe = list(map(str, self.numeros(3)))
+            # print(recebe)
+            self.combo_g_sorteio_4.clear()
+            self.combo_g_sorteio_4.addItems(sample(recebe, 1))
+        else:
+            self.combo_g_sorteio_4.clear()
+            self.combo_g_sorteio_4.addItems(["vazio"])
+
+        if len(self.bicho_provavel[4]) >= 1:
+            recebe = list(map(str, self.numeros(4)))
+            # print(recebe)
+            self.combo_g_sorteio_5.clear()
+            self.combo_g_sorteio_5.addItems(sample(recebe, 1))
+        else:
+            self.combo_g_sorteio_5.clear()
+            self.combo_g_sorteio_5.addItems(["vazio"])
+
    def _criar_dicionario_tempos_de_espera(self):
-        """Cria um dicionário com o número do bicho ligado a uma lista
+        """Cria um dicionário com o número dos bichos podendo ser ligado a uma lista
            de tempos que demorou para ser sorteado"""
-
         print("_criar_dicionario_tempos_de_espera")
-        dicionario_tempos = {}  # Um dicionário para armazenar as contagens de tempos
-        self.bichos_tempo_espera={}
 
-        for i in range(len(self.lista_bichos_data)):
-            item = self.lista_bichos_data[i]  # Item da lista em questão
+
+        self.bichos_tempo_espera={} # Armazenará a resposta final
+
+        cont=0
+        for listas in self.lista_bicho_5sorteios:# Vai andar os 5 sorteios que possuen uma lista com os bichos
+          dicionario_tempos = {}  # Um dicionário para armazenar as contagens , se apagará a cada sorteio
+          cont+=1
+          #For que vai trabalhar com a lógica de cada item das lista
+          for i in range(len(listas)):
+
+
+#--------------------------lógica1 - -----------------------------------------------------------------------------------
+
+            item = listas[i]  # Item da lista em questão
             if item not in dicionario_tempos:
                 dicionario_tempos[item] = []  # Inicializa uma lista vazia para o item
 
-            if item in self.lista_bichos_data[i + 1:]:  # Aqui é feita uma pergunta se ele aparecerá nos próximos
-                # itens , caso não apareça fica com o último valor
-                indice_proxima_ocorrencia = self.lista_bichos_data.index(item, i + 1)  # aqui quando ele irá aparecer
+            if item in listas[i + 1:]:  # Aqui é feita uma pergunta se ele aparecerá nos próximos
+                                                        # itens , caso não apareça fica com o último valor
+
+                indice_proxima_ocorrencia = listas.index(item, i + 1)  # aqui quando ele irá aparecer
                 # , apartir de uma casa na frente para não pegar
                 # a sua posição e sim a da próxima repetição
-                tempo_demora = indice_proxima_ocorrencia - i  # diminuo a posição atual do lugar aonde se encontra o próximo
-                dicionario_tempos[item].append(tempo_demora)  # adicionando
 
-        for bicho , tempo_lista in dicionario_tempos.items():
-            if tempo_lista!=[]:
-                self.bichos_tempo_espera[bicho]=tempo_lista
-        #self.bichos_tempo_espera=dicionario_tempos
-        print(self.bichos_tempo_espera)
+
+#---------------------------Resposta da lógica---------------------------------------------------------------
+                tempo_demora = indice_proxima_ocorrencia - i  # diminuo a posição atual do lugar aonde se encontra o próximo
+                dicionario_tempos[item]=(tempo_demora)  # Vai criando o dicionário com grupo e atraso
+
+# ---------------------------Resposta final---------------------------------------------------------------
+          if  self.bichos_tempo_espera:
+             self.bichos_tempo_espera.update({cont:dicionario_tempos})
+
+          else:
+              self.bichos_tempo_espera={cont:dicionario_tempos}
+          """for x, i in self.bichos_tempo_espera:"""
+
+
         self._bicho_atrasado()
 
-   def _lista_de_bichos(self):
-        """Cria uma lista com os números dos grupos sortiados dos jogos escolhidos por data"""
-        print("_lista_de_bichos")
-        resultado = []
-
-        for dicionario in self._jogos_escolhidos_por_dia_data:
-            for data, valores in dicionario.items():
-                for valor in valores:
-                    l_te_2 = valor.get("l-te 2", "")
-                    # Usando regex para encontrar os dois últimos números após o hífen
-                    numeros = re.findall(r'-(\d+)$', l_te_2)
-                    if numeros:
-                        resultado.append(int(numeros[0]))
-
-        self.lista_bichos_data=resultado
-        self._criar_dicionario_tempos_de_espera()
    def _bicho_atrasado(self):
-        dicionario_bicho_atraso = {}
+        print("_bicho_atrasado")
+
         contador = 0
-        for bichos, repeti in self.bichos_tempo_espera.items():
 
-            if repeti != []:
-                contador+=1
-                self.dicionario_bicho_atraso[bichos]=self.lista_bichos_data[::-1].index(bichos)
+        #esse é o for cabeça referente as listas
+        for lista , valores in self.bichos_tempo_espera.items():
 
-            if contador==0:
-                print("nada")
-        self._cria_lista_de_grupos_provaveis()
+            dicionario_bicho_atraso = {}
+            #for do dic que traz o grupo e seu atraso
+            for bichos, repeti in valores.items():
+                if repeti==[]:
+                    repeti=0
 
-   def _cria_lista_de_grupos_provaveis(self):
-        self.combo_g_sorteio.clear()
-        self.bicho_provavel=[]
+  #------------------------- lógica-------------------------------------------------------------------
+                if repeti >=self.menor and repeti <=self.maior:
+                    if dicionario_bicho_atraso:
+                      dicionario_bicho_atraso.update({bichos:repeti})
+                    else:
+                        dicionario_bicho_atraso={bichos:repeti}
+
+ # ------------------------- Resposta final-------------------------------------------------------------------
+            if self.bicho_provavel:
+                 self.bicho_provavel.update({contador:dicionario_bicho_atraso})
+                 contador += 1
+            else:
+                    self.bicho_provavel={contador: dicionario_bicho_atraso}
+                    contador+=1
 
 
-        for bicho, atraso in self.dicionario_bicho_atraso.items():
-            if atraso>29 and atraso<=35:
-
-                self.bicho_provavel.append(f"grup:{bicho} At :{atraso}")
-
-        print(self.bicho_provavel)
-        self.combo_g_sorteio.addItems(self.bicho_provavel)
-        self.combo_g_sorteio.setMinimumWidth(100)
-
-   def _prejuizo_ganho_grupo(self):
-        print("self._prejuizo_ganho_grupo")
-        #self.tline_relatorio.clear()
-        self._d_inicial_final()
-        self._lista_de_bichos()
-        # criar uma dic prejuizo do bicho
-        # criar uma dic ganho do bicho
-        # criar um elemento acumulador do ganho para colocar no valor ganho bicho
-        # criar um elemento aumulador da perda para colocar no valor prejuizo bicho
-        #criar um elemento aumulador das  perdas para diminuir do ganho
-        # criar um elemento aumulador dos  ganhos para ser subtraido da perda
-        self.prejuizo_grupo={}
-        self.ganho_grupo={}
-        ganho_bicho=0
-        prejuizo_bicho=0
-        acumulo_ganho=0
-        acumulo_perda=0
-        #preciso passar por todos os resultados do bicho tempo_espera
-        for bicho , acertos in self.bichos_tempo_espera.items():
-        #preciso acessar cada elemento do seu value
-           for item in acertos:
-        #saber se é maior que 28 e menor que 48 e se é maior ou igual que 48
-              if item >=30 and  item<36:
-        # se maior que 28 pego esse valor diminuo de 48 e acrescento no value do ganho do bicho
-                 ganho_bicho+=18-(item-30)
-                 self.ganho_grupo[bicho]=ganho_bicho
-                 acumulo_ganho+=ganho_bicho
-              if item>=34:
-        # se maior ou igual a 48 pego esse bicho e acrecento 18 reais no value dic prejuizo do bicho
-                  prejuizo_bicho+=4
-                  self.prejuizo_grupo[bicho]=prejuizo_bicho
-                  acumulo_perda+=prejuizo_bicho
-              ganho_bicho=0
-              prejuizo_bicho=0
-        # essas variaveis precisam ser sempre zeradas pos precisam trazer o valor atual de acordo com a data em escolha
-        print(self.bicho_provavel)
-        print(f"Ganho:{acumulo_ganho} Perda: {acumulo_perda} = {acumulo_ganho - acumulo_perda} Ganhos" )
-        print(f"Seu ganho foi de: {self.ganho_grupo}\nSua perda de: {self.prejuizo_grupo}")
 
 
 app=QApplication(sys.argv)
